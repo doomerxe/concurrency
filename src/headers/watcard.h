@@ -3,7 +3,7 @@
 #include <uFuture.h>
 
 class WATCard {
-    friend class TrainStop;
+    friend _Task TrainStop;
     
     class PImpl; // *** Replace these two lines with your own implementation.
     PImpl * pimpl;

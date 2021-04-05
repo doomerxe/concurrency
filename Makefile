@@ -15,4 +15,7 @@ all : ${EXEC}
 ${EXEC} : ${OBJECTS}
 	${CXX} ${CXXFLAGS} $^ -o $@
 
--include ${DEPENDS}
+target/%.o : src/%.cc
+	${CXX} ${CXXFLAGS} -c $^ -o $@
+
+#-include ${DEPENDS}
