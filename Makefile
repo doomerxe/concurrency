@@ -16,6 +16,6 @@ ${EXEC} : ${OBJECTS}
 	${CXX} ${CXXFLAGS} $^ -o $@
 
 target/%.o : src/%.cc
-	${CXX} ${CXXFLAGS} -c $^ -o $@
+	${CXX} ${CXXFLAGS} -c $< -o $@
 
-#-include ${DEPENDS}
+-include ${DEPENDS}
