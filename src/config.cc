@@ -2,7 +2,7 @@
 #include <fstream>
 #include <limits>										// numeric_limits
 using namespace std;
-#include "config.h"
+#include "headers/config.h"
 
 static bool comments( ifstream & in, string & name ) {
 	for ( ;; ) {
