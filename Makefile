@@ -8,6 +8,12 @@ EXEC = lrt
 
 DEPENDS = ${OBJECTS:.o=.d}
 
+CURRENT = bank driver
+
+CURRENTOBJECTS = ${CURRENT:%=target/%.o}
+
+CURRENTDEPENDS = ${CURRENTOBJECTS:.o=.d}
+
 .PHONY : all
 
 all : ${EXEC}
@@ -19,3 +25,8 @@ target/%.o : src/%.cc
 	${CXX} ${CXXFLAGS} -c $< -o $@
 
 -include ${DEPENDS}
+
+#############################################################
+
+clean :						# remove files that can be regenerated
+	rm -f ${CURRENTDEPENDS} ${CURRENTOBJECTS} ${EXEC}
