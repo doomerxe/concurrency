@@ -8,7 +8,7 @@ EXEC = lrt
 
 DEPENDS = ${OBJECTS:.o=.d}
 
-CURRENT = bank
+CURRENT = bank printer
 
 CURRENTOBJECTS = ${CURRENT:%=target/%.o}
 
