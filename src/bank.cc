@@ -30,14 +30,11 @@ Bank::~Bank() {
 
 void Bank::deposit(unsigned int id, unsigned int amount) {
     pimpl->balance[(int) id] += amount;
-    pimpl->wait[(int) id].signal();
+    if (!pimpl->wait[(int) id].empty() && pimpl->wait[(int) id].front() <= pimpl->balance[(int) id]) pimpl->wait[(int) id].signal();
 }
 
 
 void Bank::withdraw(unsigned int id, unsigned int amount) {
-    for (;;) {
-        if (pimpl->balance[(int) id] >= amount) break;
-        pimpl->wait[(int) id].wait();
-    }
+    if (pimpl->balance[(int) id] < amount) pimpl->wait[(int) id].wait(amount);
     pimpl->balance[(int) id] -= amount;
 }

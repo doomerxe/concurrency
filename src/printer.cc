@@ -2,8 +2,9 @@
 #include <string>
 
 #include "headers/printer.h"
-#define totalType 10
 using namespace std;
+
+const int totalType = 10;
 
 struct Info {
     Printer::Kind kind;
