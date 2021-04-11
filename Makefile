@@ -1,5 +1,5 @@
 CXX = u++
-CXXFLAGS = -multi -Wall -Wextra -MMD
+CXXFLAGS = -g -multi -Wall -Wextra -MMD
 
 COMPONENTS = bank cardoffice conductor config driver global groupoff nameserver \
              parent printer student timer train trainstop watcard

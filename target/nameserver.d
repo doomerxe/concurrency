@@ -9,4 +9,8 @@ target/nameserver.o: src/nameserver.cc /usr/local/u++-7.0.0/inc/uC++.h \
  /usr/local/u++-7.0.0/inc/uCalendar.h /usr/local/u++-7.0.0/inc/uAlarm.h \
  /usr/local/u++-7.0.0/inc/uPIHeap.h /usr/local/u++-7.0.0/inc/uHeap.h \
  /usr/local/u++-7.0.0/inc/uBaseSelector.h \
- /usr/local/u++-7.0.0/inc/uLocalDebugger.h src/headers/nameserver.h
+ /usr/local/u++-7.0.0/inc/uLocalDebugger.h src/headers/nameserver.h \
+ src/headers/printer.h src/headers/trainstop.h src/headers/global.h \
+ src/headers/train.h src/headers/watcard.h \
+ /usr/local/u++-7.0.0/inc/uFuture.h \
+ /usr/local/u++-7.0.0/inc/uDefaultExecutor.h
