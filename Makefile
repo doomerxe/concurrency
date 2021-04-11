@@ -8,7 +8,7 @@ EXEC = lrt
 
 DEPENDS = ${OBJECTS:.o=.d}
 
-CURRENT = bank printer parent timer namerserver groupoff
+CURRENT = config bank printer parent timer nameserver groupoff
 
 CURRENTOBJECTS = ${CURRENT:%=target/%.o}
 
