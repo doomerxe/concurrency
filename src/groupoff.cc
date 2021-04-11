@@ -85,5 +85,6 @@ void Groupoff::main() {
             --pimpl->callByStudent;
         }
     }
+    // put it here to match the output
     pimpl->printer.print(Printer::Kind::Groupoff, 'F');
 }
