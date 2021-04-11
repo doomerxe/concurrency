@@ -8,7 +8,7 @@ EXEC = lrt
 
 DEPENDS = ${OBJECTS:.o=.d}
 
-CURRENT = config bank printer parent timer nameserver groupoff watcard cardoffice
+CURRENT = config bank printer parent timer nameserver groupoff watcard cardoffice conductor
 
 CURRENTOBJECTS = ${CURRENT:%=target/%.o}
 
