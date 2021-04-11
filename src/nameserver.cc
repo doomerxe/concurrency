@@ -10,7 +10,8 @@ class NameServer::PImpl {
   unsigned int studentId;
   unsigned int trainStopId;
 
-
+  PImpl(Printer &prt, unsigned int numStops, unsigned int numStudents):
+    prt{prt}, numStops{numStops}, numStudents{numStudents}, stopList{new TrainStop*[numStops]} {}
 };
 
 void NameServer::main() {
@@ -26,7 +27,7 @@ NameServer::NameServer( Printer & prt, unsigned int numStops, unsigned int numSt
 }
 
 NameServer::~NameServer() {
-
+  delete pimpl;
 }
 
 void NameServer::registerStop( unsigned int trainStopId ) {

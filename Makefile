@@ -8,7 +8,7 @@ EXEC = lrt
 
 DEPENDS = ${OBJECTS:.o=.d}
 
-CURRENT = bank printer timer
+CURRENT = bank printer timer namerserver
 
 CURRENTOBJECTS = ${CURRENT:%=target/%.o}
 
