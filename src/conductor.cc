@@ -36,11 +36,7 @@ void Conductor::main() {
         } _Else {
             yield(pimpl->delay);
             pimpl->printer.print(Printer::Kind::Conductor, pimpl->id, 'c');
-            try {
-                pimpl->train->scanPassengers();
-            } catch (Train::Ejected &) {
-                break;
-            }
+            pimpl->train->scanPassengers();
         }
 
     }
