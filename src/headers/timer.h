@@ -6,10 +6,10 @@ _Task Timer {
 	class PImpl;
 	PImpl * pimpl;
 
-    void main();
-  public:
-    Timer( Printer & prt, NameServer & nameServer, unsigned int timerDelay );
-    ~Timer();
+  void main();
+ public:
+  Timer( Printer & prt, NameServer & nameServer, unsigned int timerDelay );
+  ~Timer();
 };
 
 // Local Variables: //
