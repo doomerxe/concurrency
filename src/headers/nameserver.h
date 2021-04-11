@@ -8,7 +8,7 @@ _Task NameServer {
 	PImpl * pimpl;
 	
 	void main();
-  public:
+ public:
 	NameServer( Printer & prt, unsigned int numStops, unsigned int numStudents );
 	~NameServer();
 	void registerStop( unsigned int trainStopId );

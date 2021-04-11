@@ -6,18 +6,19 @@
 class Timer::PImpl {
  public:
   Printer &prt;
-  TrainStop **trainStops;
-  unsigned int numStops;
+  NameServer &server;
   unsigned int delay;
   unsigned int tickNumber = 0;
 
   PImpl(Printer &prt, NameServer &server, unsigned int delay):
-    prt{prt}, trainStops{server.getStopList()}, numStops{server.getNumStops()}, delay{delay} {} // PImpl
+    prt{prt}, server{server}, delay{delay} {} // PImpl
 }; // Timer::PImpl
 
 void Timer::main() {
   pimpl->prt.print(Printer::Kind::Timer, 'S');
- 
+  TrainStop **trainStops = pimpl->server.getStopList();
+  unsigned int numStops = pimpl->server.getNumStops();
+
   while (true) {
     _Accept( ~Timer ) {
       break;
@@ -25,8 +26,8 @@ void Timer::main() {
       yield(pimpl->delay);
       pimpl->prt.print(Printer::Kind::Timer, 't', pimpl->tickNumber);
       pimpl->tickNumber++;
-      for (unsigned int i = 0; i < pimpl->numStops; ++i) {
-        pimpl->trainStops[i]->tick();
+      for (unsigned int i = 0; i < numStops; ++i) {
+        trainStops[i]->tick();
       } // for
     } // _Accept-_Else
   } // while
