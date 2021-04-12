@@ -8,9 +8,9 @@ _Task Conductor {
 	PImpl * pimpl;
 
 	void main();
-  public:
-  	Conductor( Printer & prt, unsigned int id, Train * train, unsigned int delay );
-  	~Conductor();
+ public:
+  Conductor( Printer & prt, unsigned int id, Train * train, unsigned int delay );
+  ~Conductor();
 };
 
 
