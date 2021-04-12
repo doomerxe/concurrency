@@ -1,6 +1,6 @@
-#include "headers/nameserver.h"
-#include "headers/printer.h"
-#include "headers/trainstop.h"
+#include "nameserver.h"
+#include "printer.h"
+#include "trainstop.h"
 
 class NameServer::PImpl {
  public:

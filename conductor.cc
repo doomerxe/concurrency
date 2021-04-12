@@ -1,8 +1,6 @@
-#include <iostream>
-
-#include "headers/conductor.h"
-#include "headers/printer.h"
-#include "headers/train.h"
+#include "conductor.h"
+#include "printer.h"
+#include "train.h"
 using namespace std;
 
 class Conductor::PImpl {

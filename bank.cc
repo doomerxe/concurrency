@@ -1,7 +1,4 @@
-#include <iostream>
-
-#include "headers/bank.h"
-using namespace std;
+#include "bank.h"
 
 struct bankAccount {
     unsigned int balance;

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "headers/watcard.h"
+#include "watcard.h"
 using namespace std;
 
 class WATCard::PImpl {

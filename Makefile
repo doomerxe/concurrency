@@ -3,16 +3,10 @@ CXXFLAGS = -g -multi -Wall -Wextra -MMD
 
 COMPONENTS = bank cardoffice conductor config driver global groupoff nameserver \
              parent printer student timer train trainstop watcard
-OBJECTS = ${COMPONENTS:%=target/%.o}
+OBJECTS = ${COMPONENTS:%=%.o}
 EXEC = lrt
 
 DEPENDS = ${OBJECTS:.o=.d}
-
-CURRENT = config bank printer parent timer nameserver groupoff watcard conductor train trainstop driver student cardoffice global
-
-CURRENTOBJECTS = ${CURRENT:%=target/%.o}
-
-CURRENTDEPENDS = ${CURRENTOBJECTS:.o=.d}
 
 .PHONY : all
 
@@ -29,4 +23,4 @@ target/%.o : src/%.cc
 #############################################################
 
 clean :						# remove files that can be regenerated
-	rm -f ${CURRENTDEPENDS} ${CURRENTOBJECTS} ${EXEC}
+	rm -f ${DEPENDS} ${OBJECTS} ${EXEC}

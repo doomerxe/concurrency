@@ -1,19 +1,19 @@
 #include <iostream>
 #include <sstream>
 
-#include "headers/config.h"
-#include "headers/MPRNG.h"
-#include "headers/printer.h"
-#include "headers/bank.h"
-#include "headers/parent.h"
-#include "headers/cardoffice.h"
-#include "headers/groupoff.h"
-#include "headers/nameserver.h"
-#include "headers/timer.h"
-#include "headers/trainstop.h"
-#include "headers/train.h"
-#include "headers/conductor.h"
-#include "headers/student.h"
+#include "config.h"
+#include "MPRNG.h"
+#include "printer.h"
+#include "bank.h"
+#include "parent.h"
+#include "cardoffice.h"
+#include "groupoff.h"
+#include "nameserver.h"
+#include "timer.h"
+#include "trainstop.h"
+#include "train.h"
+#include "conductor.h"
+#include "student.h"
 
 using namespace std;
 

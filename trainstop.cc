@@ -1,6 +1,6 @@
-#include "headers/trainstop.h"
-#include "headers/printer.h"
-#include "headers/nameserver.h"
+#include "trainstop.h"
+#include "printer.h"
+#include "nameserver.h"
 
 #include <iostream>
 

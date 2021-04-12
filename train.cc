@@ -1,12 +1,12 @@
 #include <iostream>
 #include <cmath>
 
-#include "headers/printer.h"
-#include "headers/watcard.h"
-#include "headers/train.h"
-#include "headers/trainstop.h"
-#include "headers/nameserver.h"
-#include "headers/MPRNG.h"
+#include "printer.h"
+#include "watcard.h"
+#include "train.h"
+#include "trainstop.h"
+#include "nameserver.h"
+#include "MPRNG.h"
 using namespace std;
 
 extern MPRNG mprng;
@@ -137,6 +137,7 @@ void Train::main() {
             pimpl->seats[i].card->resetPOP();
             pimpl->seats[i].card = nullptr;
             pimpl->seats[i].student = nullptr;
+            --pimpl->curSize;
             *(pimpl->seats[i].dest) = stop;
             pimpl->seats[i].wait.signalBlock();
           } 
@@ -165,7 +166,7 @@ void Train::main() {
         }
       } else {
         if (pimpl->curStop == 0) {
-          pimpl->curStop = ceil(pimpl->numStops / 2);
+          pimpl->curStop = pimpl->numStops - 1;
         } else {
           --pimpl->curStop;
         }                

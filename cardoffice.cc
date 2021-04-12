@@ -1,10 +1,9 @@
-#include <iostream>
+#include "bank.h"
+#include "printer.h"
+#include "watcard.h"
+#include "cardoffice.h"
+#include "MPRNG.h"
 
-#include "headers/bank.h"
-#include "headers/printer.h"
-#include "headers/watcard.h"
-#include "headers/cardoffice.h"
-#include "headers/MPRNG.h"
 using namespace std;
 
 extern MPRNG mprng;

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <limits>										// numeric_limits
 using namespace std;
-#include "headers/config.h"
+#include "config.h"
 
 static bool comments( ifstream & in, string & name ) {
 	for ( ;; ) {

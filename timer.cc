@@ -1,7 +1,7 @@
-#include "headers/timer.h"
-#include "headers/trainstop.h"
-#include "headers/nameserver.h"
-#include "headers/printer.h"
+#include "timer.h"
+#include "trainstop.h"
+#include "nameserver.h"
+#include "printer.h"
 
 class Timer::PImpl {
  public:

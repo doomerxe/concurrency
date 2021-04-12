@@ -1,9 +1,7 @@
-#include <iostream>
-
-#include "headers/parent.h"
-#include "headers/printer.h"
-#include "headers/bank.h"
-#include "headers/MPRNG.h"
+#include "parent.h"
+#include "printer.h"
+#include "bank.h"
+#include "MPRNG.h"
 using namespace std;
 
 extern MPRNG mprng;

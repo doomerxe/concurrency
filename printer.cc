@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "headers/printer.h"
+#include "printer.h"
 using namespace std;
 
 const int totalType = 10;

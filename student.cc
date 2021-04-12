@@ -1,14 +1,12 @@
-#include <iostream>
-
-#include "headers/student.h"
-#include "headers/groupoff.h"
-#include "headers/printer.h"
-#include "headers/watcard.h"
-#include "headers/cardoffice.h"
-#include "headers/train.h"
-#include "headers/trainstop.h"
-#include "headers/nameserver.h"
-#include "headers/MPRNG.h"
+#include "student.h"
+#include "groupoff.h"
+#include "printer.h"
+#include "watcard.h"
+#include "cardoffice.h"
+#include "train.h"
+#include "trainstop.h"
+#include "nameserver.h"
+#include "MPRNG.h"
 using namespace std;
 
 extern MPRNG mprng;
@@ -63,6 +61,7 @@ void Student::main() {
     unsigned int startIndex;
     unsigned int start;
     bool usedGift = false;
+    bool usingGift = false;
     
     _Enable {
     for (unsigned int i = 0; i < numStudentTrips; ++i) {
@@ -123,11 +122,12 @@ void Student::main() {
             for (;;) {
                 try {
                     // first try to use giftcard
-                    _Select(giftcard) {
+                    _When(!usedGift) _Select(giftcard) {
                         WATCard * card = giftcard();
                         startlocation->buy(numTripStops, *card);
                         // set usedGift to true
                         usedGift = true;
+                        usingGift = true;
                         pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'G', fee, card->getBalance());
                         break;
                     } or _Select(watcard) {
@@ -142,7 +142,7 @@ void Student::main() {
                     continue;
                 } catch (TrainStop::Funds & f) {    // if not enough money, do a transfer and try again
                     WATCard * card = watcard();
-                    pimpl->cardOffice.transfer(pimpl->id, f.amount, card);
+                    watcard = pimpl->cardOffice.transfer(pimpl->id, f.amount, card);
                     continue;
                 }
             }            
@@ -164,9 +164,8 @@ void Student::main() {
         try {
             // determine the card to check
             WATCard * current_card;
-            if (usedGift) current_card = giftcard();
+            if (usingGift) current_card = giftcard();
             else current_card = watcard();
-
             // wait for train and start trip
             pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'W', start);
             Train * train = startlocation->wait(pimpl->id, trainDir);
@@ -180,7 +179,10 @@ void Student::main() {
         }
 
         // giftcard cannot be used again
-        if (usedGift) giftcard.reset();
+        if (usedGift) {
+            giftcard.reset();
+            usingGift = false;
+        }
         // next trip start from the end station
         start = end;
         stops[endIndex] = stops[numStops - 1];
