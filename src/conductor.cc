@@ -7,6 +7,7 @@ using namespace std;
 
 class Conductor::PImpl {
     public:
+        // communicate
         Printer & printer;
         unsigned int id;
         Train * train;
@@ -16,8 +17,7 @@ class Conductor::PImpl {
             printer(prt), id(id), train(train), delay(delay) {
         }
 
-        ~PImpl() {
-        }
+        ~PImpl() {}
 };
 
 Conductor::Conductor(Printer & prt, unsigned int id, Train * train, unsigned int delay) : 
@@ -35,6 +35,7 @@ void Conductor::main() {
         _Accept(~Conductor) {
             break;
         } _Else {
+            // yield and call scanPassengers() on the train to check freeriders
             yield(pimpl->delay);
             pimpl->printer.print(Printer::Kind::Conductor, pimpl->id, 'c');
             pimpl->train->scanPassengers();

@@ -9,11 +9,11 @@ using namespace std;
 
 extern MPRNG mprng;
 
-struct Job {
-    WATCard * card;
+struct Job {                     // Similar to note p179 work structure
+    WATCard * card;              // args  
     unsigned int sid;
     unsigned int amount;
-    WATCard::FWATCard futureCard;
+    WATCard::FWATCard futureCard;   // result
             
     Job(WATCard * card, unsigned int sid, unsigned int amount): card(card), sid(sid), amount(amount) {}
 };
@@ -21,33 +21,47 @@ struct Job {
 class WATCardOffice::PImpl {
     public:
         _Task Courier {
-            unsigned int cid;
+            unsigned int cid; // courier id
+            
+            // communicate
             Printer & printer;
             Bank & bank;
             WATCardOffice * cardoffice;
 
             void main() {
+                // do jobs
                 for(;;) {
+                    // ask for a job to do
                     Job * current_job = cardoffice->requestWork();
+                    // if watcardoffice destroyed, courier should also be ready to be destroyed.
+                    // hence exits loop
                     if (cardoffice->pimpl->finish) break;
+
+                    // extract job infos
                     unsigned int sid = current_job->sid;
                     unsigned int amount = current_job->amount;
                     WATCard * card = current_job->card;
+                    
                     // start job
                     printer.print(Printer::Kind::WATCardOfficeCourier, cid, 't', sid, amount);
                     bank.withdraw(sid, amount);
                     card->deposit(amount);
+
                     // check lost
-                    if (mprng(1, 6) == 1) {
+                    if (mprng(1, 6) == 1) {     // if lost courier will destroy the card.
                         current_job->futureCard.exception(new Lost());
                         printer.print(Printer::Kind::WATCardOfficeCourier, cid, 'L', sid);
                         delete card;
-                    } else {
+                    } else {    // not lost
                         current_job->futureCard.delivery(card);
                         printer.print(Printer::Kind::WATCardOfficeCourier, cid, 'T', sid, amount);
                     }
+
+                    // finish the job and destroy it
                     delete current_job;
                 }
+
+                // to match output, so put it here not inside destroyer
                 printer.print(Printer::Kind::WATCardOfficeCourier, cid, 'F');
             }
 
@@ -57,15 +71,16 @@ class WATCardOffice::PImpl {
                     printer.print(Printer::Kind::WATCardOfficeCourier, cid, 'S');
                 }
 
-            ~Courier() {
-            }
+            ~Courier() {}
         };
 
+        // communicate
         Printer & printer;
         Bank & bank;
         unsigned int numCouriers;
-        list<Job *> joblist;
-        bool finish;
+
+        list<Job *> joblist;    // a job list for pending jobs
+        bool finish;            // check if the task ends (called destroyer)
     
         PImpl(Printer & prt, Bank & bank, unsigned int numCouriers): 
             printer(prt), bank(bank), numCouriers(numCouriers) {
@@ -85,27 +100,30 @@ WATCardOffice::~WATCardOffice() {
 }
 
 WATCard::FWATCard WATCardOffice::create(unsigned int sid, unsigned int amount) {
-    // watcard should be destroyed by student, used print to figure that out....
+    // watcard should be destroyed by student, used print to figure that out
     WATCard * card = new WATCard();
+    // create a job to perform the creation of the watcard
     Job * card_job = new Job(card, sid, amount);
     pimpl->joblist.push_back(card_job);
     return card_job->futureCard;    
 }
 
 WATCard::FWATCard WATCardOffice::transfer(unsigned int sid, unsigned int amount, WATCard * card) {
+    // create a job to perform the transfer
     Job * card_job = new Job(card, sid, amount);
     pimpl->joblist.push_back(card_job);
     return card_job->futureCard; 
 }
 
 Job * WATCardOffice::requestWork() {
+    // provide a job to the caller
     Job * current_job = pimpl->joblist.front();
     pimpl->joblist.pop_front();
     return current_job;
 }
 
 void WATCardOffice::main() {
-    // courier list should be initialized here, used print to find this...
+    // create couriers list
     list<PImpl::Courier *> couriers;
     for (unsigned int i = 0; i < pimpl->numCouriers; ++i) {
         PImpl::Courier * courier = new PImpl::Courier(i, pimpl->printer, pimpl->bank, this);
@@ -114,14 +132,17 @@ void WATCardOffice::main() {
 
     for (;;) {
         _Accept (~WATCardOffice) {
-            pimpl->finish = true;
+            // clear the list
             pimpl->joblist.clear();
+            // set finish to true and unblock couriers.
+            pimpl->finish = true;
             for (unsigned int i = 0; i < pimpl->numCouriers; ++i) {
+                // provide NULL ptr to couriers and unblock 
                 pimpl->joblist.push_back(NULL);
                 _Accept(requestWork);
             }
             break;
-        } or _When(!pimpl->joblist.empty()) _Accept(requestWork) {
+        } or _When(!pimpl->joblist.empty()) _Accept(requestWork) {      // only provide job when there exists pending jobs
             pimpl->printer.print(Printer::Kind::WATCardOffice, 'W');
         } or _Accept(create) {
             pimpl->printer.print(Printer::Kind::WATCardOffice, 'C', pimpl->joblist.back()->sid, pimpl->joblist.back()->amount);
@@ -130,11 +151,13 @@ void WATCardOffice::main() {
         } 
     }
 
+    // destory couriers 
     while(!couriers.empty()) {
         PImpl::Courier * courier = couriers.back();
         couriers.pop_back();
         delete courier;
     }
 
+    // to match output
     pimpl->printer.print(Printer::Kind::WATCardOffice, 'F');
 }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 #include "headers/student.h"
 #include "headers/groupoff.h"
@@ -16,6 +15,7 @@ extern MPRNG mprng;
 
 class Student::PImpl {
     public:
+        // communicate
         Printer & printer;
         NameServer & nameServer;
         WATCardOffice & cardOffice;
@@ -45,8 +45,7 @@ Student::~Student() {
 }
 
 void Student::main() {
-    vector<unsigned int>stops;
-
+    // prepare for the trips to start
     unsigned int numStudentTrips = mprng(1, pimpl->maxStudentTrips);
     unsigned int numStops = pimpl->numStops;
     unsigned int maxTripCost = pimpl->stopCost * numStops / 2;
@@ -55,30 +54,34 @@ void Student::main() {
     
     pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'S', numStudentTrips);
 
+    // array to help calculate start & end destinations
+    unsigned int stops[numStops];
     for (unsigned int i = 0; i < numStops; ++i) {
-        stops.push_back(i);
+        stops[i] = i;
     }
 
     unsigned int startIndex;
     unsigned int start;
-
+    
     _Enable {
     for (unsigned int i = 0; i < numStudentTrips; ++i) {
 
         unsigned int delay = mprng(0, pimpl->maxStudentDelay);
         yield(delay);
 
-        if (i == 0) {
+        if (i == 0) {   // first time needs to generate the start index
             startIndex = mprng(0, numStops - 1);
             start = stops[startIndex];
             stops[startIndex] = stops[numStops - 1];
             stops[numStops - 1] = start;        
         }
 
+        // generate a distinct end destination
         unsigned int endIndex = mprng(0, numStops - 2);
         unsigned int end = stops[endIndex];
         TrainStop * startlocation = pimpl->nameServer.getStop(pimpl->id ,stops[numStops - 1]);
 
+        // find the direction
         unsigned int numTripStops;
         char direction;
         Train::Direction trainDir;
@@ -105,6 +108,7 @@ void Student::main() {
         }
         pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'T', start, end, direction);
 
+        // see if a student wants to avoid the fee
         bool freeride = false;
         if (numTripStops == 1) {
             if (mprng(1, 10) <= 5) freeride = true;
@@ -112,13 +116,16 @@ void Student::main() {
             if (mprng(1, 10) <= 3) freeride = true;
         }
 
+        // buy ticket
         unsigned int fee = pimpl->stopCost * numTripStops;
         if (!freeride) {
             for (;;) {
                 try {
+                    // first try to use giftcard
                     _Select(gitfcard) {
                         WATCard * card = gitfcard();
                         startlocation->buy(numTripStops, *card);
+                        // cannot use it again
                         gitfcard.reset();
                         pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'G', fee, card->getBalance());
                         break;
@@ -128,17 +135,17 @@ void Student::main() {
                         pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'B', fee, card->getBalance());
                         break;                        
                     }
-                } catch(WATCardOffice::Lost &) {
+                } catch(WATCardOffice::Lost &) {    // if card lost when first created ask a new one
                     pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'L');
                     watcard = pimpl->cardOffice.create(pimpl->id, maxTripCost);
                     continue;
-                } catch (TrainStop::Funds & f) {
+                } catch (TrainStop::Funds & f) {    // if not enough money, do a transfer and try again
                     WATCard * card = watcard();
                     pimpl->cardOffice.transfer(pimpl->id, f.amount, card);
                     continue;
                 }
             }            
-        } else {
+        } else {    // avoid the fee
             pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'f');
         }
 
@@ -166,6 +173,7 @@ void Student::main() {
             break;
         }
 
+        // next trip start from the end station
         start = end;
         stops[endIndex] = stops[numStops - 1];
         stops[numStops - 1] = start;        
