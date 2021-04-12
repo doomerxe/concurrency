@@ -35,13 +35,13 @@ class Groupoff::PImpl {
             }
 
         ~PImpl() {
-            // destroy card (job)
+            // destroy unfinished card (job)
             while (!watcards.empty()) {
                 Card * current_card = watcards.back();
                 watcards.pop_back();
                 delete current_card;
             }
-            // destroy unfinished watcard
+            // destroy watcard
             while (!deletecards.empty()) {
                 WATCard * current_card = deletecards.back();
                 deletecards.pop_back();
