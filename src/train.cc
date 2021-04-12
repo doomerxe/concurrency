@@ -12,12 +12,16 @@ using namespace std;
 extern MPRNG mprng;
 
 struct SeatInfo {
-  bool inUse = false;
-  bool freerider = false;
-  WATCard *card = nullptr;
-  uBaseTask *student;
-  TrainStop **dest;
   uCondition wait;
+  bool freerider = false;       // am I caught by the conductor
+
+  // communication from student to train
+  bool inUse = false;           // if this seat is occupied
+  WATCard *card = nullptr;      // my watcard
+  uBaseTask *student;           // myself, can be _Resumed _At
+
+  // communication from train to student
+  TrainStop **dest;             // The train tells me when I get off.
 };
 
 class Train::PImpl {
@@ -46,7 +50,6 @@ class Train::PImpl {
     }
 
     seats = new SeatInfo[maxNumStudents];
-
     curSize = 0;
   }
 
@@ -89,6 +92,7 @@ TrainStop * Train::embark(unsigned int studentId, unsigned int destStop, WATCard
     }
   }
 
+  // wait until I am ejected/at my deststop
   pimpl->seats[index].wait.wait(destStop);
 
   return myStop;
@@ -101,17 +105,22 @@ void Train::main() {
   for (;;) {
     _Accept (~Train) {
       break;
+
+    // accepting conductors' call to scan, mark student as freerider when not paid
     } or _Accept (scanPassengers) {       
       for (int i = 0; i < (int) pimpl->maxNumStudents; ++i) {
         if (pimpl->seats[i].inUse) {
           if (!pimpl->seats[i].card->paidForTicket()) pimpl->seats[i].freerider = true;
         } 
-      }    
+      }
     } _Else {
       TrainStop * stop = stopList[pimpl->curStop];
       unsigned int cur = pimpl->curSize;
+      
+      // let students get off the train
       for (int i = 0; i < (int) pimpl->maxNumStudents; ++i) {
         if (!pimpl->seats[i].wait.empty()) {
+          // reset seat, POP, throw exception for free riders
           if (pimpl->seats[i].freerider) {
             pimpl->seats[i].inUse = false;
             pimpl->seats[i].freerider = false;
@@ -120,9 +129,12 @@ void Train::main() {
             _Resume Ejected() _At *(pimpl->seats[i].student);
             pimpl->seats[i].student = nullptr;
             pimpl->seats[i].wait.signalBlock();
+
+          // inform other students they are at their dest and reset seat.
           } else if (pimpl->seats[i].wait.front() == pimpl->curStop) {
             pimpl->seats[i].inUse = false;
             pimpl->seats[i].freerider = false;
+            pimpl->seats[i].card->resetPOP();
             pimpl->seats[i].card = nullptr;
             pimpl->seats[i].student = nullptr;
             *(pimpl->seats[i].dest) = stop;
@@ -131,15 +143,20 @@ void Train::main() {
         }
       }
       
+      // arrive at the station.
       unsigned int avail = pimpl->maxNumStudents - pimpl->curSize;
       pimpl->printer.print(Printer::Kind::Train, pimpl->id, 'A', pimpl->curStop, avail, cur);
       unsigned int taken = stop->arrive(pimpl->id, pimpl->direction, avail);
+
+      // Let students embark
       for (unsigned int i = 0; i < taken; ++i) {
         _Accept (embark) {
           pimpl->printer.print(Printer::Kind::Train, pimpl->id, 'E', pimpl->studentId, pimpl->curStop);
           ++pimpl->curSize;
         }
       }
+
+      // go to my next stop
       if (pimpl->direction == Direction::Clockwise) {
         if (pimpl->curStop == pimpl->numStops - 1) {
           pimpl->curStop = 0;
