@@ -26,6 +26,7 @@ Conductor::Conductor(Printer & prt, unsigned int id, Train * train, unsigned int
     }
 
 Conductor::~Conductor() {
+    pimpl->printer.print(Printer::Kind::Conductor, pimpl->id, 'F');
     delete pimpl;
 }
 
@@ -36,14 +37,8 @@ void Conductor::main() {
         } _Else {
             yield(pimpl->delay);
             pimpl->printer.print(Printer::Kind::Conductor, pimpl->id, 'c');
-            try {
-                pimpl->train->scanPassengers();
-            } catch (Train::Ejected &) {
-                break;
-            }
+            pimpl->train->scanPassengers();
         }
-
     }
 
-    pimpl->printer.print(Printer::Kind::Conductor, pimpl->id, 'F');
 }
