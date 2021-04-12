@@ -61,7 +61,8 @@ void Student::main() {
 
     unsigned int startIndex;
     unsigned int start;
-    
+
+    _Enable {
     for (unsigned int i = 0; i < numStudentTrips; ++i) {
 
         unsigned int delay = mprng(0, pimpl->maxStudentDelay);
@@ -168,6 +169,7 @@ void Student::main() {
         start = end;
         stops[endIndex] = stops[numStops - 1];
         stops[numStops - 1] = start;        
+    }
     }
 
     delete watcard;

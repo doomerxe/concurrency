@@ -27,7 +27,7 @@ static bool convert( int & val, char * buffer ) {
 
 // print the usage and exit
 void usage( char *argv[] ) {
-    cerr << "Usage: " << argv[0] << " [ config-file [ seed ] ] ";
+    cerr << "Usage: " << argv[0] << " [ config-file [ seed ] ]" << endl;
     exit( EXIT_FAILURE ); 
 } // usage
 
@@ -55,6 +55,7 @@ int main( int argc, char *argv[] ) {
   const unsigned int numTrains = 2;
   const unsigned int maxTripCost = cparms.stopCost * (cparms.numStops / 2);
 
+  // Some are created with new, so that we can controll when they are deleted
   Printer printer{ cparms.numStudents, numTrains, cparms.numStops, cparms.numCouriers };
   Bank bank{ cparms.numStudents };
   Parent *parent = new Parent{ printer, bank, cparms.numStudents, cparms.parentalDelay, maxTripCost };
@@ -97,12 +98,14 @@ int main( int argc, char *argv[] ) {
     delete trains[i];
   }
 
+  // Timer need to be deleted before stops as it calls tick()
   delete timer;
 
   for ( unsigned int i = 0; i < cparms.numStops; ++i ) {
     delete trainStops[i];
   }
 
+  // parent needs to be deleted before bank as it calls deposite()
   delete parent;
   return 0;
 } // main
