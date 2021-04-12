@@ -166,7 +166,7 @@ void Train::main() {
         }
       } else {
         if (pimpl->curStop == 0) {
-          pimpl->curStop = ceil(pimpl->numStops / 2);
+          pimpl->curStop = pimpl->numStops - 1;
         } else {
           --pimpl->curStop;
         }                
