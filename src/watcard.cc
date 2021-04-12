@@ -5,8 +5,8 @@ using namespace std;
 
 class WATCard::PImpl {
     public:
-        unsigned int balance;
-        bool pop;
+        unsigned int balance;   
+        bool pop;               // proof of purchase
     
         PImpl() {
             balance = 0;

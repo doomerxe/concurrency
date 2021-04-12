@@ -10,6 +10,7 @@ extern MPRNG mprng;
 
 class Parent::PImpl {
     public:
+        // communicate
         Printer & printer;
         Bank & bank;
         unsigned int numStudents;
@@ -34,10 +35,12 @@ Parent::~Parent() {
 
 void Parent::main() {
     for (;;) {
+        // yield here (instead of inside _Else) to match input
         yield(pimpl->parentalDelay);
         _Accept(~Parent) {
             break;
         } _Else {
+            // parent deposits money into students' accounts
             unsigned int gift = mprng(1, 3);
             unsigned int studentIndex = mprng(0 , pimpl->numStudents - 1);
             unsigned int amount = max((unsigned int) 1, pimpl->maxTripCost * gift / 3);

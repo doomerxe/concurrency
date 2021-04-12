@@ -21,16 +21,20 @@ struct Info {
 
 class Printer::PImpl {
     public:
+        // communicate
         unsigned int numStudents;
         unsigned int numTrains;
         unsigned int numStops;
         unsigned int numCouriers;
 
+        // fields to help calculate index
         int total;
         int trainOffset;
         int condOffset;
         int stopOffset;
         int studOffset;
+
+        // info list
         struct Info * printerInfo;
 
         PImpl(unsigned int numStudents, unsigned int numTrains, unsigned int numStops, unsigned int numCouriers):

@@ -3,23 +3,27 @@
 #include "headers/bank.h"
 using namespace std;
 
+struct bankAccount {
+    unsigned int balance;
+    uCondition wait;
+};
+
 class Bank::PImpl {
     public:
+        // communicate
         unsigned int numStudents;
-        unsigned int * balance;
-        uCondition * wait;
+
+        struct bankAccount * accounts;     //  one account per student
     
         PImpl(unsigned int numStudents): numStudents(numStudents) {
-            balance = new unsigned int[numStudents];
-            wait = new uCondition[numStudents];
+            accounts = new bankAccount[numStudents];
             for (int i = 0; i < (int) numStudents; ++i) {
-                balance[i] = 0;
+                accounts[i].balance = 0;    // initially 0 balance
             }
         }
 
         ~PImpl() {
-            delete [] balance;
-            delete [] wait;
+            delete [] accounts;
         }
 };
 
@@ -30,12 +34,19 @@ Bank::~Bank() {
 }
 
 void Bank::deposit(unsigned int id, unsigned int amount) {
-    pimpl->balance[(int) id] += amount;
-    if (!pimpl->wait[(int) id].empty() && pimpl->wait[(int) id].front() <= pimpl->balance[(int) id]) pimpl->wait[(int) id].signal();
+    pimpl->accounts[id].balance += amount;
+    // signal when there is enough money (balance) in the account.
+    if (!pimpl->accounts[id].wait.empty() && 
+        pimpl->accounts[id].wait.front() <= pimpl->accounts[id].balance) {
+            pimpl->accounts[id].wait.signal(); 
+        }
 }
 
 
 void Bank::withdraw(unsigned int id, unsigned int amount) {
-    if (pimpl->balance[(int) id] < amount) pimpl->wait[(int) id].wait(amount);
-    pimpl->balance[(int) id] -= amount;
+    // blocked when not enought money (balance)
+    if (pimpl->accounts[id].balance < amount) {
+        pimpl->accounts[id].wait.wait(amount);
+    }
+    pimpl->accounts[id].balance -= amount;
 }
