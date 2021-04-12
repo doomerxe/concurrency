@@ -61,10 +61,12 @@ void TrainStop::main() {
   while (true) {
     _Accept( ~TrainStop ) {
       break;
+
+    // update watcard or throw exception for student buying ticket
     } or _Accept( buy ) {
       unsigned int balance = pimpl->card->getBalance();
       unsigned int cost = pimpl->stopCost * pimpl->numStops;
-      if ( balance >= cost ) {    // has enough balance
+      if ( balance >= cost ) {    // has enough balance?
         pimpl->card->withdraw( cost );
         pimpl->card->markPaid();
         pimpl->prt.print(Printer::Kind::TrainStop, pimpl->id, 'B', cost);
@@ -72,6 +74,8 @@ void TrainStop::main() {
         _Resume Funds(cost - balance) _At *(pimpl->caller);
       }
       pimpl->wBuying.signalBlock();
+
+    // increase waiting count according to students' direction
     } or _Accept( wait ) {
       char dirChar = pimpl->direction == Train::Direction::Clockwise ? '<' : '>';
       pimpl->prt.print(Printer::Kind::TrainStop, pimpl->id, 'W', pimpl->studentId, dirChar);
@@ -80,6 +84,8 @@ void TrainStop::main() {
       } else {
         pimpl->numWaitingCCW++;
       }
+
+    // wake students up for the arriving train, return the # of student embarked to the train
     }  or _Accept( arrive ) {
       bool isClockwise = (Train::Direction::Clockwise == pimpl->direction);
       unsigned int &numWaiting = isClockwise ? pimpl->numWaitingCW : pimpl->numWaitingCCW;
@@ -101,16 +107,18 @@ void TrainStop::main() {
 
       *(pimpl->numEmbarked) = canTake;
 
+    // print disembarking
     } or _Accept( disembark ) {
       pimpl->prt.print(Printer::Kind::TrainStop, pimpl->id, 'D', pimpl->studentId);
-    } or _Accept( tick ) {
-        pimpl->prt.print(Printer::Kind::TrainStop, pimpl->id, 't');
-        //while (!pimpl->wTrain.empty()) {
 
+    // wake trains up, and advance the system.
+    } or _Accept( tick ) {
+      pimpl->prt.print(Printer::Kind::TrainStop, pimpl->id, 't');
+
+      while (!pimpl->wTrain.empty()) {
         pimpl->wTrain.signalBlock();
-       // }
-        
       }
+    }
   }
 }
 
@@ -119,6 +127,7 @@ void TrainStop::buy( unsigned int numStops, WATCard &card ) {
   pimpl->card = &card;
   pimpl->numStops = numStops;
 
+  // wait for the paying process
   pimpl->wBuying.wait();
 }
 
@@ -130,6 +139,7 @@ Train *TrainStop::wait(unsigned int studentId, Train::Direction direction) {
   pimpl->direction = direction;
   pimpl->studentId = studentId;
 
+  // wait for the train for my direction
   if (direction == Train::Direction::Clockwise) {
     pimpl->wWaitingCW.wait();
     return pimpl->trainCW;
@@ -147,9 +157,9 @@ unsigned int TrainStop::arrive( unsigned int trainId, Train::Direction direction
   pimpl->train = static_cast<Train*>(&uThisTask());
 
   unsigned int numEmbarked;
-
   pimpl->numEmbarked = &numEmbarked;
 
+  // wait for timer to tick
   pimpl->wTrain.wait();
 
   return numEmbarked;
