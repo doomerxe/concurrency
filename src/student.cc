@@ -49,7 +49,7 @@ void Student::main() {
     unsigned int numStudentTrips = mprng(1, pimpl->maxStudentTrips);
     unsigned int numStops = pimpl->numStops;
     unsigned int maxTripCost = pimpl->stopCost * numStops / 2;
-    WATCard::FWATCard gitfcard = pimpl->groupoff.giftCard();
+    WATCard::FWATCard giftcard = pimpl->groupoff.giftCard();
     WATCard::FWATCard watcard = pimpl->cardOffice.create(pimpl->id, maxTripCost);
     
     pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'S', numStudentTrips);
@@ -62,6 +62,7 @@ void Student::main() {
 
     unsigned int startIndex;
     unsigned int start;
+    bool usedGift = false;
     
     _Enable {
     for (unsigned int i = 0; i < numStudentTrips; ++i) {
@@ -122,11 +123,11 @@ void Student::main() {
             for (;;) {
                 try {
                     // first try to use giftcard
-                    _Select(gitfcard) {
-                        WATCard * card = gitfcard();
+                    _Select(giftcard) {
+                        WATCard * card = giftcard();
                         startlocation->buy(numTripStops, *card);
-                        // cannot use it again
-                        gitfcard.reset();
+                        // set usedGift to true
+                        usedGift = true;
                         pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'G', fee, card->getBalance());
                         break;
                     } or _Select(watcard) {
@@ -161,7 +162,12 @@ void Student::main() {
         }
 
         try {
-            WATCard * current_card = watcard();
+            // determine the card to check
+            WATCard * current_card;
+            if (usedGift) current_card = giftcard();
+            else current_card = watcard();
+
+            // wait for train and start trip
             pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'W', start);
             Train * train = startlocation->wait(pimpl->id, trainDir);
             pimpl->printer.print(Printer::Kind::Student, pimpl->id, 'E', train->getId());
@@ -173,6 +179,8 @@ void Student::main() {
             break;
         }
 
+        // giftcard cannot be used again
+        if (usedGift) giftcard.reset();
         // next trip start from the end station
         start = end;
         stops[endIndex] = stops[numStops - 1];
